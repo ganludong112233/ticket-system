@@ -1,0 +1,32 @@
+/fshop-platform/logs
+
+
+### Example user template template
+### Example user template
+
+# IntelliJ project files
+logs/
+*node_modules/
+.idea
+*.iml
+out
+gen
+#*.gitignore
+*.project
+*.classpath
+*.settings/
+target/
+logs/
+
+#apollo
+optsettingsapollo.cluster=default/
+# Created by .ignore support plugin (hsz.mobi 
+test-out/
+)
+/.settings
+<<<<<<< HEAD
+/.project
+=======
+/.project
+optsettingsapollo.cluster=default/
+>>>>>>> master

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.workorder.ticket.persistence.dao.DeployDao" >
+  <resultMap id="BaseResultMap" type="com.workorder.ticket.persistence.entity.Deploy" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="TINYINT" />
+    <result column="version" property="version" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="comment" property="comment" jdbcType="VARCHAR" />
+    <result column="flow_engine_definition_id" property="flowEngineDefinitionId" jdbcType="VARCHAR" />
+    <result column="flow_engine_instance_id" property="flowEngineInstanceId" jdbcType="VARCHAR" />
+    <result column="create_id" property="createId" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="submit_time" property="submitTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <resultMap id="DeployWithCreatorDtoMap" type="com.workorder.ticket.persistence.dto.deploy.DeployWithCreatorDto" extends="BaseResultMap" >
+    <result column="createRealName" property="createRealName" jdbcType="VARCHAR" />
+    <result column="createRealName" property="createRealName" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, title, type, version, status, content, comment, flow_engine_definition_id, flow_engine_instance_id, 
+    create_id, create_time, submit_time
+  </sql>
+  
+  <sql id="Join_With_User" >
+    d.id, d.title, d.type, d.version, d.status, d.content, d.comment, d.flow_engine_definition_id, d.flow_engine_instance_id, 
+    d.create_id, d.create_time, d.submit_time, u.realname as createRealName, u.username  as createUsername
+  </sql>
+  
+  <select id="getByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    SELECT 
+    <include refid="Base_Column_List" />
+    FROM deploy
+    WHERE id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  <select id="getWithCreator" resultMap="DeployWithCreatorDtoMap" parameterType="java.lang.Long" >
+    SELECT 
+	    <include refid="Join_With_User" />
+    FROM deploy d
+    LEFT JOIN user u ON d.create_id=u.id
+    WHERE d.id = #{id,jdbcType=BIGINT}
+  </select>
+  
+   <select id="getListByParam" resultMap="DeployWithCreatorDtoMap" parameterType="com.workorder.ticket.persistence.dto.deploy.DeployQueryDto" >
+    SELECT 
+	   DISTINCT <include refid="Join_With_User" />
+    FROM deploy d
+    LEFT JOIN user u ON d.create_id=u.id
+    <if test="projectId != null">
+    	JOIN deploy_project dp 
+    </if>
+    <where>
+   		<if test="instanceIds != null">
+    		d.flow_engine_instance_id IN 
+    		<foreach collection="instanceIds" item="instanceId" open="(" close=")" separator=",">
+    			#{instanceId}
+    		</foreach>
+    	</if>
+    	<if test="status != null">
+    		AND d.status =#{status}
+    	</if>
+    	<if test="creator != null">
+    		AND u.realname like concat('%',#{creator},'%')
+    	</if>
+    	<if test="projectId != null">
+    		AND dp.project_id = #{projectId}
+    	</if>
+    	<if test="title != null">
+    		AND d.title like concat('%',#{title},'%')
+    	</if>
+    	<if test="createRange != null">
+    		<if test="createRange.begin != null">
+    			AND d.create_time &gt;= #{createRange.begin}
+    		</if>
+    		<if test="createRange.end != null">
+    			AND d.create_time &lt;= #{createRange.end}
+    		</if>
+    	</if>
+    	<if test="submitRange != null">
+    		<if test="submitRange.begin != null">
+    			AND d.submit_time &gt;= #{submitRange.begin}
+    		</if>
+    		<if test="submitRange.end != null">
+    			AND d.submit_time &lt;= #{submitRange.begin}
+    		</if>
+    	</if>
+    </where>
+    ORDER BY d.id DESC
+    <if test="pageItem != null">
+    	LIMIT #{pageItem.offset},#{pageItem.pageSize}
+    </if>
+  </select>
+  
+  <select id="getCountByParam" resultType="java.lang.Integer" parameterType="com.workorder.ticket.persistence.dto.deploy.DeployQueryDto" >
+    SELECT 
+	    COUNT(DISTINCT d.id)
+    FROM deploy d
+    LEFT JOIN user u ON d.create_id=u.id
+    <if test="projectId != null">
+    	JOIN deploy_project dp 
+    </if>
+    <where>
+   		<if test="instanceIds != null">
+    		d.flow_engine_instance_id IN 
+    		<foreach collection="instanceIds" item="instanceId" open="(" close=")" separator=",">
+    			#{instanceId}
+    		</foreach>
+    	</if>
+    	<if test="status != null">
+    		AND d.status =#{status}
+    	</if>
+    	<if test="creator != null">
+    		AND u.realname like concat('%',#{creator},'%')
+    	</if>
+    	<if test="projectId != null">
+    		AND dp.project_id = #{projectId}
+    	</if>
+    	<if test="title != null">
+    		AND d.title like concat('%',#{title},'%')
+    	</if>
+    	<if test="createRange != null">
+    		<if test="createRange.begin != null">
+    			AND d.create_time &gt;= #{createRange.begin}
+    		</if>
+    		<if test="createRange.end != null">
+    			AND d.create_time &lt;= #{createRange.end}
+    		</if>
+    	</if>
+    	<if test="submitRange != null">
+    		<if test="submitRange.begin != null">
+    			AND d.submit_time &gt;= #{submitRange.begin}
+    		</if>
+    		<if test="submitRange.end != null">
+    			AND d.submit_time &lt;= #{submitRange.begin}
+    		</if>
+    	</if>
+    </where>
+  </select>
+  
+  <select id="statisticByDay" resultType="com.workorder.ticket.controller.vo.common.HistogramItem" >
+	SELECT 
+		DATE_FORMAT(create_time,'%Y-%m-%d') AS item,
+		COUNT(*) value 
+	FROM deploy
+	WHERE  create_time &gt;= #{startTime} 
+		AND create_time &lt;=#{endTime}
+	GROUP BY item;
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    DELETE FROM deploy
+    WHERE id = #{id,jdbcType=BIGINT}
+  </delete>
+  
+  <insert id="insert" parameterType="com.workorder.ticket.persistence.entity.Deploy" useGeneratedKeys="true"  keyProperty="id" >
+    INSERT INTO deploy (id, title, type, 
+      version, status, content, 
+      comment, flow_engine_definition_id, flow_engine_instance_id, 
+      create_id, create_time, submit_time
+      )
+    VALUES (#{id,jdbcType=BIGINT}, #{title,jdbcType=VARCHAR}, #{type,jdbcType=TINYINT}, 
+      #{version,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT}, #{content,jdbcType=VARCHAR}, 
+      #{comment,jdbcType=VARCHAR}, #{flowEngineDefinitionId,jdbcType=VARCHAR}, #{flowEngineInstanceId,jdbcType=VARCHAR}, 
+      #{createId,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{submitTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.workorder.ticket.persistence.entity.Deploy" >
+    UPDATE deploy
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="version != null" >
+        version = #{version,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="comment != null" >
+        comment = #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="flowEngineDefinitionId != null" >
+        flow_engine_definition_id = #{flowEngineDefinitionId,jdbcType=VARCHAR},
+      </if>
+      <if test="flowEngineInstanceId != null" >
+        flow_engine_instance_id = #{flowEngineInstanceId,jdbcType=VARCHAR},
+      </if>
+      <if test="createId != null" >
+        create_id = #{createId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="submitTime != null" >
+        submit_time = #{submitTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.workorder.ticket.persistence.entity.Deploy" >
+    UPDATE deploy
+    SET title = #{title,jdbcType=VARCHAR},
+      type = #{type,jdbcType=TINYINT},
+      version = #{version,jdbcType=VARCHAR},
+      status = #{status,jdbcType=TINYINT},
+      content = #{content,jdbcType=VARCHAR},
+      comment = #{comment,jdbcType=VARCHAR},
+      flow_engine_definition_id = #{flowEngineDefinitionId,jdbcType=VARCHAR},
+      flow_engine_instance_id = #{flowEngineInstanceId,jdbcType=VARCHAR},
+      create_id = #{createId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      submit_time = #{submitTime,jdbcType=TIMESTAMP}
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

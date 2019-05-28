@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.workorder.ticket.persistence.dao.DeployProjectDao" >
+  <resultMap id="BaseResultMap" type="com.workorder.ticket.persistence.entity.DeployProject" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="deploy_id" property="deployId" jdbcType="BIGINT" />
+    <result column="project_id" property="projectId" jdbcType="INTEGER" />
+    <result column="project_name" property="projectName" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, deploy_id, project_id, project_name
+  </sql>
+  
+  <select id="getByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM deploy_project
+    WHERE id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    DELETE FROM deploy_project
+    WHERE id = #{id,jdbcType=BIGINT}
+  </delete>
+  
+  <delete id="deleteByDeployId" parameterType="java.lang.Long" >
+    DELETE FROM deploy_project
+    WHERE deploy_id = #{deployId,jdbcType=BIGINT}
+  </delete>
+  
+  <insert id="insert" parameterType="com.workorder.ticket.persistence.entity.DeployProject"  useGeneratedKeys="true"  keyProperty="id" >
+    INSERT INTO deploy_project (id, deploy_id, project_id, 
+      project_name)
+    VALUES (#{id,jdbcType=BIGINT}, #{deployId,jdbcType=BIGINT}, #{projectId,jdbcType=INTEGER}, 
+      #{projectName,jdbcType=VARCHAR})
+  </insert>
+  
+  <insert id="insertBatch" parameterType="com.workorder.ticket.persistence.entity.DeployProject"  useGeneratedKeys="true"  keyProperty="id" >
+    INSERT INTO deploy_project (id, deploy_id, project_id, 
+      project_name)
+    VALUES 
+    <foreach collection="records" item="record" separator=",">
+    (#{record.id,jdbcType=BIGINT}, #{record.deployId,jdbcType=BIGINT}, #{record.projectId,jdbcType=INTEGER}, 
+      #{record.projectName,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  
+  <insert id="insertSelective" parameterType="com.workorder.ticket.persistence.entity.DeployProject" useGeneratedKeys="true"  keyProperty="id" >
+    INSERT INTO deploy_project
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="deployId != null" >
+        deploy_id,
+      </if>
+      <if test="projectId != null" >
+        project_id,
+      </if>
+      <if test="projectName != null" >
+        project_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="deployId != null" >
+        #{deployId,jdbcType=INTEGER},
+      </if>
+      <if test="projectId != null" >
+        #{projectId,jdbcType=INTEGER},
+      </if>
+      <if test="projectName != null" >
+        #{projectName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.workorder.ticket.persistence.entity.DeployProject" >
+    UPDATE deploy_project
+    <set >
+      <if test="deployId != null" >
+        deploy_id = #{deployId,jdbcType=BIGINT},
+      </if>
+      <if test="projectId != null" >
+        project_id = #{projectId,jdbcType=INTEGER},
+      </if>
+      <if test="projectName != null" >
+        project_name = #{projectName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.workorder.ticket.persistence.entity.DeployProject" >
+    UPDATE deploy_project
+    SET deploy_id = #{deployId,jdbcType=BIGINT},
+      project_id = #{projectId,jdbcType=INTEGER},
+      project_name = #{projectName,jdbcType=VARCHAR}
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

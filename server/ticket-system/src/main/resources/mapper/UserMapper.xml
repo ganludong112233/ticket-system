@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.workorder.ticket.persistence.dao.UserDao" >
+  <resultMap id="BaseResultMap" type="com.workorder.ticket.persistence.entity.User" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="realname" property="realname" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="TINYINT" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="group_id" property="groupId" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="forbidden_time" property="forbiddenTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <resultMap id="userListResultMap" type="com.workorder.ticket.persistence.dto.UserInfoDto" extends="BaseResultMap">
+  	<result column="groupName" property="groupName" jdbcType="VARCHAR" />
+  	<result column="userId" property="userId" jdbcType="BIGINT" />
+  </resultMap>
+  
+  
+  <sql id="Base_Column_List" >
+    id, username, password, realname, email, mobile, type, status, group_id, create_time, update_time,
+    forbidden_time
+  </sql>
+  <sql id="Page_User_List" >
+    user.id, user.username, user.realname, user.email, user.mobile, user.type, user.status, user.group_id, user.create_time, user.update_time,
+    user.forbidden_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    SELECT 
+    <include refid="Base_Column_List" />
+    FROM user
+    WHERE id = #{id,jdbcType=BIGINT}
+  </select>
+   <select id="getLeaderByGroupCode" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    SELECT 
+     u.id, u.username,u.password, u.realname, u.email, u.mobile, u.type, u.status, u.group_id, u.create_time, u.update_time,
+    u.forbidden_time
+    FROM user u
+    JOIN `group` g ON g.user_id =u.id
+    WHERE g.code = #{groupCode,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    DELETE FROM user
+    WHERE id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.workorder.ticket.persistence.entity.User"  useGeneratedKeys="true"  keyProperty="id">
+    INSERT INTO user (id, username, password, 
+      realname, email, mobile, 
+      type, status, group_id, 
+      create_time, forbidden_time)
+    VALUES (#{id,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{realname,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, 
+      #{type,jdbcType=TINYINT}, #{status,jdbcType=TINYINT}, #{groupId,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{forbiddenTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.workorder.ticket.persistence.entity.User"  useGeneratedKeys="true"  keyProperty="id">
+    INSERT INTO user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="username != null" >
+        username,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+      <if test="realname != null" >
+        realname,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="groupId != null" >
+        group_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="forbiddenTime != null" >
+        forbidden_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        md5(#{password,jdbcType=VARCHAR}),
+      </if>
+      <if test="realname != null" >
+        #{realname,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=TINYINT},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="groupId != null" >
+        #{groupId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="forbiddenTime != null" >
+        #{forbiddenTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.workorder.ticket.persistence.entity.User" >
+    UPDATE user
+    <set >
+      <if test="username != null" >
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        password = md5(#{password,jdbcType=VARCHAR}),
+      </if>
+      <if test="realname != null" >
+        realname = #{realname,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="groupId != null" >
+        group_id = #{groupId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="forbiddenTime != null" >
+        forbidden_time = #{forbiddenTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.workorder.ticket.persistence.entity.User" >
+    UPDATE user
+    SET username = #{username,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      realname = #{realname,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      type = #{type,jdbcType=TINYINT},
+      status = #{status,jdbcType=TINYINT},
+      group_id = #{groupId,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      forbidden_time = #{forbiddenTime,jdbcType=TIMESTAMP}
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <select id="getUserList" resultMap="userListResultMap" parameterType="com.workorder.ticket.persistence.dto.UserQueryDto">
+    SELECT 
+    <include refid="Page_User_List" />,gr.name as groupName,gr.user_id as userId
+    FROM user user
+    LEFT JOIN `group` gr ON user.group_id = gr.id
+    <where>
+    	<if test="userIds != null">
+    		user.id IN 
+    		<foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+    			#{userId}
+    		</foreach>
+    	</if>
+		<if test="username != null">
+			AND user.username LIKE CONCAT('%', #{username}, '%')
+		</if>
+		<if test="realname != null">
+			AND user.realname LIKE CONCAT('%', #{realname}, '%')
+		</if>
+		<if test="groupId != null">
+			AND user.group_id = #{groupId}
+		</if>
+	</where>
+	ORDER BY user.id DESC
+	<if test="page != null">
+		LIMIT #{page.offset},#{page.pageSize}
+	</if>
+  </select>
+  <select id="getUserCount" resultType="java.lang.Integer" parameterType="com.workorder.ticket.persistence.dto.UserQueryDto">
+    SELECT 
+    	COUNT(1)
+    FROM user user
+    LEFT JOIN `group` gr ON user.id = gr.user_id
+    <where>
+    	<if test="userIds != null">
+    		user.id IN 
+    		<foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+    			#{userId}
+    		</foreach>
+    	</if>
+		<if test="username != null">
+			AND user.username LIKE CONCAT('%', #{username}, '%')
+		</if>
+		<if test="realname != null">
+			AND user.realname LIKE CONCAT('%', #{realname}, '%')
+		</if>
+		<if test="groupId != null">
+			AND user.group_id = #{groupId}
+		</if>
+	</where>
+  </select>
+  <update id="updateUserPwd">
+    UPDATE user
+    SET 
+      password = md5(#{newPwd}),
+      update_time = SYSDATE()
+    WHERE id = #{userId,jdbcType=BIGINT} 
+    AND password = md5(#{oldPwd})
+  </update>
+  
+  <select id="getUserByUserNameAndPwd" resultMap="BaseResultMap">
+    SELECT 
+    <include refid="Base_Column_List" />
+    FROM user
+    WHERE username = #{username} 
+    AND password = md5(#{pwd})
+  </select>
+  
+  <select id="getUserByUserName" resultMap="BaseResultMap">
+    SELECT 
+    <include refid="Base_Column_List" />
+    FROM user
+    WHERE username = #{username} 
+  </select>
+  
+</mapper>

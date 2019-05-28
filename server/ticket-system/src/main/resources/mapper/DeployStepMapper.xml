@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.workorder.ticket.persistence.dao.DeployStepDao" >
+  <resultMap id="BaseResultMap" type="com.workorder.ticket.persistence.entity.DeployStep" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="deploy_id" property="deployId" jdbcType="BIGINT" />
+    <result column="step_order" property="stepOrder" jdbcType="INTEGER" />
+    <result column="type" property="type" jdbcType="TINYINT" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.workorder.ticket.persistence.entity.DeployStep" extends="BaseResultMap" >
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, deploy_id, step_order, type
+  </sql>
+  <sql id="Blob_Column_List" >
+    content
+  </sql>
+  
+  <select id="getByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    SELECT 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    FROM deploy_step
+    WHERE id = #{id,jdbcType=BIGINT}
+  </select>
+  
+   <select id="getByDeployId" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    SELECT 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    FROM deploy_step
+    WHERE deploy_id = #{deployId,jdbcType=BIGINT}
+    ORDER BY step_order
+  </select>
+  
+  <select id="getByDeployIds" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    SELECT 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    FROM deploy_step
+    WHERE deploy_id IN
+    <foreach collection="deployIds" item="deployId" open="(" close=")" separator=",">
+    	#{deployId,jdbcType=BIGINT}
+    </foreach>
+    ORDER BY deploy_id,step_order
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    DELETE FROM deploy_step
+    WHERE id = #{id,jdbcType=BIGINT}
+  </delete>
+  
+  <delete id="deleteByDeployId" parameterType="java.lang.Long" >
+    DELETE FROM deploy_step
+    WHERE deploy_id = #{deployId,jdbcType=BIGINT}
+  </delete>
+  
+  <insert id="insert" parameterType="com.workorder.ticket.persistence.entity.DeployStep" useGeneratedKeys="true"  keyProperty="id" >
+    INSERT INTO deploy_step (id, deploy_id, step_order, 
+      type, content)
+    VALUES (#{id,jdbcType=BIGINT}, #{deployId,jdbcType=BIGINT}, #{stepOrder,jdbcType=INTEGER}, 
+      #{type,jdbcType=TINYINT}, #{content,jdbcType=LONGVARCHAR})
+  </insert>
+  
+  <insert id="insertBatch" parameterType="com.workorder.ticket.persistence.entity.DeployStep" useGeneratedKeys="true"  keyProperty="id" >
+    INSERT INTO deploy_step (id, deploy_id, step_order, 
+      type, content)
+    VALUES 
+    <foreach collection="records" item="record" separator=",">
+    (#{record.id,jdbcType=BIGINT}, #{record.deployId,jdbcType=BIGINT}, #{record.stepOrder,jdbcType=INTEGER}, 
+      #{record.type,jdbcType=TINYINT}, #{record.content,jdbcType=LONGVARCHAR})
+    </foreach>
+  </insert>
+  
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.workorder.ticket.persistence.entity.DeployStep" >
+    UPDATE deploy_step
+    <set >
+      <if test="deployId != null" >
+        deploy_id = #{deployId,jdbcType=BIGINT},
+      </if>
+      <if test="stepOrder != null" >
+        step_order = #{stepOrder,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.workorder.ticket.persistence.entity.DeployStep" >
+    UPDATE deploy_step
+    SET deploy_id = #{deployId,jdbcType=BIGINT},
+      step_order = #{stepOrder,jdbcType=INTEGER},
+      type = #{type,jdbcType=TINYINT},
+      content = #{content,jdbcType=LONGVARCHAR}
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.workorder.ticket.persistence.entity.DeployStep" >
+    UPDATE deploy_step
+    SET deploy_id = #{deployId,jdbcType=BIGINT},
+      step_order = #{stepOrder,jdbcType=INTEGER},
+      type = #{type,jdbcType=TINYINT}
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

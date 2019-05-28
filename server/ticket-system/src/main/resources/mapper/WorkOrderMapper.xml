@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.workorder.ticket.persistence.dao.WorkOrderDao" >
+  <resultMap id="BaseResultMap" type="com.workorder.ticket.persistence.entity.WorkOrder" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="TINYINT" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="flow_engine_definition_id" property="flowEngineDefinitionId" jdbcType="VARCHAR" />
+    <result column="flow_engine_instance_id" property="flowEngineInstanceId" jdbcType="VARCHAR" />
+    <result column="comment" property="comment" jdbcType="VARCHAR" />
+    <result column="create_id" property="createId" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="submit_time" property="submitTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <resultMap id="ResultMapWithBLOBs" type="com.workorder.ticket.persistence.entity.WorkOrder" extends="BaseResultMap" >
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  
+   <resultMap id="WorkOrderWithCreatorDtoMap" type="com.workorder.ticket.persistence.dto.workorder.WorkOrderWithCreatorDto" extends="ResultMapWithBLOBs" >
+    <result column="createRealName" property="createRealName" jdbcType="VARCHAR" />
+    <result column="createUsername" property="createUsername" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Join_With_User" >
+    wo.id, wo.title, wo.type, wo.description, wo.status, wo.flow_engine_definition_id, wo.flow_engine_instance_id, 
+    wo.comment, wo.create_id, wo.create_time, wo.submit_time, u.realname as createRealName, u.username as createUsername
+  </sql>
+  
+  <sql id="Join_With_User_With_Blobs" >
+    wo.id, wo.title, wo.type, wo.description, wo.status, wo.flow_engine_definition_id, wo.flow_engine_instance_id, 
+    wo.comment, wo.create_id, wo.create_time, wo.submit_time, wo.content, u.realname as createRealName, u.username as createUsername
+  </sql>
+  
+  <sql id="Base_Column_List" >
+    id, title, type, description, status, flow_engine_definition_id, flow_engine_instance_id, 
+    comment, create_id, create_time, submit_time
+  </sql>
+  
+  <sql id="Blob_Column_List" >
+    content
+  </sql>
+  
+  <select id="getByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    SELECT 
+	    <include refid="Base_Column_List" />
+	    ,
+	    <include refid="Blob_Column_List" />
+    FROM work_order
+    WHERE id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  <select id="getWithCreator" resultMap="WorkOrderWithCreatorDtoMap" parameterType="java.lang.Long" >
+    SELECT 
+	    <include refid="Join_With_User_With_Blobs" />
+    FROM work_order wo
+    LEFT JOIN user u ON wo.create_id=u.id
+    WHERE wo.id = #{id,jdbcType=BIGINT}
+  </select>
+  
+   <select id="getListByParam" resultMap="WorkOrderWithCreatorDtoMap" parameterType="com.workorder.ticket.persistence.dto.workorder.WorkOrderQueryDto" >
+    SELECT 
+	    <include refid="Join_With_User" />
+    FROM work_order wo
+    LEFT JOIN user u ON wo.create_id=u.id
+    <where>
+    	<if test="instanceIds != null">
+    		wo.flow_engine_instance_id IN 
+    		<foreach collection="instanceIds" item="instanceId" open="(" close=")" separator=",">
+    			#{instanceId}
+    		</foreach>
+    	</if>
+    	<if test="status != null">
+    		AND wo.status =#{status}
+    	</if>
+    	<if test="creator != null">
+    		AND u.realname like concat('%',#{creator},'%')
+    	</if>
+    	<if test="title != null">
+    		AND wo.title like concat('%',#{title},'%')
+    	</if>
+    	<if test="createRange != null">
+    		<if test="createRange.begin != null">
+    			AND wo.create_time &gt;= #{createRange.begin}
+    		</if>
+    		<if test="createRange.end != null">
+    			AND wo.create_time &lt;= #{createRange.end}
+    		</if>
+    	</if>
+    	<if test="submitRange != null">
+    		<if test="submitRange.begin != null">
+    			AND wo.submit_time &gt;= #{submitRange.begin}
+    		</if>
+    		<if test="submitRange.end != null">
+    			AND wo.submit_time &lt;= #{submitRange.begin}
+    		</if>
+    	</if>
+    </where>
+    ORDER BY wo.id DESC
+    <if test="pageItem != null">
+    	LIMIT #{pageItem.offset},#{pageItem.pageSize}
+    </if>
+  </select>
+  
+  <select id="getCountByParam" resultType="java.lang.Integer" parameterType="com.workorder.ticket.persistence.dto.workorder.WorkOrderQueryDto" >
+    SELECT 
+	    COUNT(*)
+    FROM work_order wo
+    LEFT JOIN user u ON wo.create_id=u.id
+    <where>
+   		<if test="instanceIds != null">
+    		wo.flow_engine_instance_id IN 
+    		<foreach collection="instanceIds" item="instanceId" open="(" close=")" separator=",">
+    			#{instanceId}
+    		</foreach>
+    	</if>
+    	<if test="status != null">
+    		AND wo.status =#{status}
+    	</if>
+    	<if test="creator != null">
+    		AND u.realname like concat('%',#{creator},'%')
+    	</if>
+    	<if test="title != null">
+    		AND wo.title like concat('%',#{title},'%')
+    	</if>
+    	<if test="createRange != null">
+    		<if test="createRange.begin != null">
+    			AND wo.create_time &gt;= #{createRange.begin}
+    		</if>
+    		<if test="createRange.end != null">
+    			AND wo.create_time &lt;= #{createRange.end}
+    		</if>
+    	</if>
+    	<if test="submitRange != null">
+    		<if test="submitRange.begin != null">
+    			AND wo.submit_time &gt;= #{submitRange.begin}
+    		</if>
+    		<if test="submitRange.end != null">
+    			AND wo.submit_time &lt;= #{submitRange.begin}
+    		</if>
+    	</if>
+    </where>
+  </select>
+  
+  <select id="statisticByDay" resultType="com.workorder.ticket.controller.vo.common.HistogramItem" >
+	SELECT 
+		DATE_FORMAT(create_time,'%Y-%m-%d') AS item,
+		COUNT(*) value 
+	FROM work_order
+	WHERE  create_time &gt;= #{startTime} 
+		AND create_time &lt;=#{endTime}
+	GROUP BY item;
+  </select>
+  
+  <select id="statisticByWeek" resultType="com.workorder.ticket.controller.vo.common.HistogramItem" >
+	SELECT 
+		DATE_FORMAT(create_time,'%Y%u') AS item,
+		COUNT(*) value 
+	FROM work_order
+	WHERE  create_time &gt;= #{startTime} 
+		AND create_time &lt;=#{endTime}
+	GROUP BY item;
+  </select>
+  
+   <select id="statisticByMonth" resultType="com.workorder.ticket.controller.vo.common.HistogramItem" >
+	SELECT 
+		DATE_FORMAT(create_time,'%Y%m') AS item,
+		COUNT(*) value 
+	FROM work_order
+	WHERE  create_time &gt;= #{startTime} 
+		AND create_time &lt;=#{endTime}
+	GROUP BY item;
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    DELETE from work_order
+    WHERE id = #{id,jdbcType=BIGINT}
+  </delete>
+  
+  <insert id="insertSelective" parameterType="com.workorder.ticket.persistence.entity.WorkOrder"  useGeneratedKeys="true"  keyProperty="id">
+    INSERT INTO work_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="flowEngineDefinitionId != null" >
+        flow_engine_definition_id,
+      </if>
+      <if test="flowEngineInstanceId != null" >
+        flow_engine_instance_id,
+      </if>
+      <if test="comment != null" >
+        comment,
+      </if>
+      <if test="createId != null" >
+        create_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="submitTime != null" >
+        submit_time,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=TINYINT},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="flowEngineDefinitionId != null" >
+        #{flowEngineDefinitionId,jdbcType=VARCHAR},
+      </if>
+      <if test="flowEngineInstanceId != null" >
+        #{flowEngineInstanceId,jdbcType=VARCHAR},
+      </if>
+      <if test="comment != null" >
+        #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="createId != null" >
+        #{createId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="submitTime != null" >
+        #{submitTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.workorder.ticket.persistence.entity.WorkOrder" >
+    UPDATE work_order
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="flowEngineDefinitionId != null" >
+        flow_engine_definition_id = #{flowEngineDefinitionId,jdbcType=VARCHAR},
+      </if>
+      <if test="flowEngineInstanceId != null" >
+        flow_engine_instance_id = #{flowEngineInstanceId,jdbcType=VARCHAR},
+      </if>
+      <if test="comment != null" >
+        comment = #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="createId != null" >
+        create_id = #{createId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="submitTime != null" >
+        submit_time = #{submitTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.workorder.ticket.persistence.entity.WorkOrder" >
+    UPDATE work_order
+    SET title = #{title,jdbcType=VARCHAR},
+      type = #{type,jdbcType=TINYINT},
+      description = #{description,jdbcType=VARCHAR},
+      status = #{status,jdbcType=TINYINT},
+      flow_engine_definition_id = #{flowEngineDefinitionId,jdbcType=VARCHAR},
+      flow_engine_instance_id = #{flowEngineInstanceId,jdbcType=VARCHAR},
+      comment = #{comment,jdbcType=VARCHAR},
+      create_id = #{createId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      submit_time = #{submitTime,jdbcType=TIMESTAMP},
+      content = #{content,jdbcType=LONGVARCHAR}
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.workorder.ticket.persistence.entity.WorkOrder" >
+    UPDATE work_order
+    SET title = #{title,jdbcType=VARCHAR},
+      type = #{type,jdbcType=TINYINT},
+      description = #{description,jdbcType=VARCHAR},
+      status = #{status,jdbcType=TINYINT},
+      flow_engine_definition_id = #{flowEngineDefinitionId,jdbcType=VARCHAR},
+      flow_engine_instance_id = #{flowEngineInstanceId,jdbcType=VARCHAR},
+      comment = #{comment,jdbcType=VARCHAR},
+      create_id = #{createId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      submit_time = #{submitTime,jdbcType=TIMESTAMP}
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

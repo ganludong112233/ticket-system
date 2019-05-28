@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.workorder.ticket.persistence.dao.BizLogDao">
+	<resultMap id="BaseResultMap"
+		type="com.workorder.ticket.persistence.entity.BizLog">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="biz_id" property="bizId" jdbcType="BIGINT" />
+		<result column="biz_type" property="bizType" jdbcType="INTEGER" />
+		<result column="biz_title" property="bizTitle" jdbcType="VARCHAR" />
+		<result column="action" property="action" jdbcType="VARCHAR" />
+		<result column="comment" property="comment" jdbcType="VARCHAR" />
+		<result column="processor_id" property="processorId" jdbcType="BIGINT" />
+		<result column="process_time" property="processTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, biz_id, biz_type, biz_title, action, comment, processor_id, process_time
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM biz_log
+		WHERE id = #{id,jdbcType=BIGINT}
+	</select>
+	<select id="getList" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM biz_log
+		WHERE biz_id = #{bizId,jdbcType=BIGINT}
+			AND biz_type=#{bizType,jdbcType=INTEGER}
+		ORDER BY id DESC
+	</select>
+	
+	<select id="getOpLogList" 
+	resultType="com.workorder.ticket.controller.vo.common.OpLog"
+		parameterType="com.workorder.ticket.persistence.dto.BizLogQueryDto">
+		SELECT
+			a.action AS op,
+			c.realname AS operator,
+			a.biz_title AS opTarget,
+			a.process_time AS opTime
+		FROM biz_log a
+		JOIN User c ON a.processor_id=c.id
+		<where>
+			<if test="bizId != null">
+				a.biz_id = #{bizId},
+			</if>
+			<if test="bizType != null">
+				AND a.biz_type = #{bizType},
+			</if>
+			<if test="createRange != null">
+	    		<if test="createRange.begin != null">
+	    			AND a.process_time &gt;= #{createRange.begin}
+	    		</if>
+	    		<if test="createRange.end != null">
+	    			AND a.process_time &lt;= #{createRange.end}
+	    		</if>
+    		</if>
+		</where>
+		ORDER BY a.id DESC
+		<if test="pageItem != null">
+    		LIMIT #{pageItem.offset},#{pageItem.pageSize}
+   		</if>
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		DELETE from biz_log
+		WHERE id = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert"
+		parameterType="com.workorder.ticket.persistence.entity.BizLog"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO biz_log (id, biz_id, biz_type,biz_title,action,
+			comment, processor_id, process_time
+			)
+		VALUES (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=BIGINT},
+			#{bizType,jdbcType=INTEGER},#{bizTitle,jdbcType=VARCHAR},#{action,jdbcType=VARCHAR},
+			#{comment,jdbcType=VARCHAR}, #{processorId,jdbcType=BIGINT}, #{processTime,jdbcType=TIMESTAMP}
+			)
+	</insert>
+	<insert id="insertSelective"
+		parameterType="com.workorder.ticket.persistence.entity.BizLog"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO biz_log
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="bizId != null">
+				biz_id,
+			</if>
+			<if test="bizType != null">
+				biz_type,
+			</if>
+			<if test="bizTitle != null">
+				biz_title,
+			</if>
+			<if test="action != null">
+				action,
+			</if>
+			<if test="comment != null">
+				comment,
+			</if>
+			<if test="processorId != null">
+				processor_id,
+			</if>
+			<if test="processTime != null">
+				process_time,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="bizId != null">
+				#{bizId,jdbcType=BIGINT},
+			</if>
+			<if test="bizType != null">
+				#{bizType,jdbcType=INTEGER},
+			</if>
+			<if test="bizTitle != null">
+				#{bizTitle,jdbcType=VARCHAR},
+			</if><if test="action != null">
+				#{action,jdbcType=VARCHAR},
+			</if>
+			<if test="comment != null">
+				#{comment,jdbcType=VARCHAR},
+			</if>
+			<if test="processorId != null">
+				#{processorId,jdbcType=BIGINT},
+			</if>
+			<if test="processTime != null">
+				#{processTime,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+</mapper>

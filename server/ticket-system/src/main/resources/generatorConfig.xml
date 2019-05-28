@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+
+	<!-- <classPathEntry -->
+	<!-- location="/data/work/mavenrepo/repository/mysql/mysql-connector-java/5.1.31/mysql-connector-java-5.1.31.jar" 
+		/> -->
+	<classPathEntry
+		location="C:\Users\wzdon\.m2\repository\mysql\mysql-connector-java\5.1.30\mysql-connector-java-5.1.30.jar" />
+
+	<context id="context1" targetRuntime="MyBatis3">
+		<commentGenerator>
+			<property name="suppressAllComments" value="true" /><!-- 是否取消注释 -->
+			<property name="suppressDate" value="true" /> <!-- 是否生成注释代时间戳 -->
+		</commentGenerator>
+
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://10.40.1.200:3308/ticket_system?useUnicode=true&amp;characterEncoding=UTF-8&amp;autoReconnect=true"
+			userId="develop" password="Aa123456">
+		</jdbcConnection>
+
+		<javaTypeResolver>
+			<property name="forceBigDecimals" value="false" />
+		</javaTypeResolver>
+
+		<javaModelGenerator targetPackage="com.workorder.ticket.persistence.entity"
+			targetProject="ticket-system/src/main/java" />
+
+		<sqlMapGenerator targetPackage="mapper"
+			targetProject="ticket-system/src/main/resources" />
+
+		<javaClientGenerator targetPackage="com.workorder.ticket.persistence.dao"
+			targetProject="ticket-system/src/main/java" type="XMLMAPPER" />
+
+	<!-- 	<table tableName="user" domainObjectName="User" enableCountByExample="false" enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" />
+	 	<table tableName="group" domainObjectName="Group" enableCountByExample="false" enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" />
+		<table tableName="flow_template" domainObjectName="FlowTemplate" enableCountByExample="false" enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" />
+		<table tableName="work_order" domainObjectName="WorkOrder" enableCountByExample="false" enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" />
+		<table tableName="work_order_log" domainObjectName="WorkOrderLog" enableCountByExample="false" enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" />
+		
+		<table tableName="deploy" domainObjectName="Deploy" enableCountByExample="false" enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" />
+		<table tableName="deploy_step" domainObjectName="DeployStep" enableCountByExample="false" enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" />
+		<table tableName="deploy_project" domainObjectName="DeployProject" enableCountByExample="false" enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" />
+		<table tableName="project" domainObjectName="Project" enableCountByExample="false" enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" /> -->
+		<table tableName="flow_template" domainObjectName="FlowTemplate" enableCountByExample="false" enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" />
+	</context>
+</generatorConfiguration>

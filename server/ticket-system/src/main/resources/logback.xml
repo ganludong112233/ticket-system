@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://www.padual.com/java/logback.xsd">
+	<property name="logDir" value="./logs" />
+
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%date{HH:mm:ss.SSS} [%thread] %-5level %logger{0}:%line - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="mainLog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${logDir}/ticket.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${logDir}/ticket.log.%d{yyyy-MM-dd}</fileNamePattern>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{0}:%line - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="sqlLog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${logDir}/sqlLog.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${logDir}/sqlLog.log.%d{yyyy-MM-dd}</fileNamePattern>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{0}:%line - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- SQL日志 -->
+	<logger name="mybatis.sql.log" level="debug" additivity="false">
+		<appender-ref ref="sqlLog" />
+	</logger>
+
+	<root level="info">
+		<appender-ref ref="mainLog" />
+		<appender-ref ref="console" />
+	</root>
+</configuration>
