@@ -20,7 +20,7 @@
 		<spring.hystrix.version>1.4.3.RELEASE</spring.hystrix.version>
 		<spring.zuul.version>1.4.3.RELEASE</spring.zuul.version>
 		<mybatis.spring.boot.version>1.3.2</mybatis.spring.boot.version>
-		<fastjson.version>1.2.54</fastjson.version>
+		<fastjson.version>1.2.83</fastjson.version>
 		<activiti.version>6.0.0</activiti.version>
 	</properties>
 
